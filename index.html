@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planning and Development Bureau</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Header Component
+    const Header = () => (
+      <header className="bg-blue-800 text-white p-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <img src="https://via.placeholder.com/50" alt="Logo" className="h-12 mr-4" />
+          <h1 className="text-xl font-bold">Planning and Development Bureau</h1>
+        </div>
+        <nav className="space-x-4">
+          {['Home', 'Departments', 'News', 'Contacts', 'Downloads', 'About Us'].map((item) => (
+            <a key={item} href={`#${item.toLowerCase().replace(' ', '-')}`} className="hover:text-blue-300">
+              {item}
+            </a>
+          ))}
+        </nav>
+      </header>
+    );
+
+    // Photo Slider Component
+    const PhotoSlider = () => {
+      const images = [
+        'https://via.placeholder.com/1200x400?text=Project+1',
+        'https://via.placeholder.com/1200x400?text=Project+2',
+        'https://via.placeholder.com/1200x400?text=Project+3',
+      ];
+      const [currentImage, setCurrentImage] = useState(0);
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setCurrentImage((prev) => (prev + 1) % images.length);
+        }, 5000);
+        return () => clearInterval(interval);
+      }, [images.length]);
+
+      return (
+        <div className="w-full h-96 overflow-hidden">
+          <img src={images[currentImage]} alt="Slider" className="w-full h-full object-cover" />
+        </div>
+      );
+    };
+
+    // Document Upload/Download Component
+    const DocumentManager = () => {
+      const [files, setFiles] = useState([]);
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'image/jpeg',
+        'image/png',
+      ];
+
+      const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file && allowedTypes.includes(file.type)) {
+          const fileURL = URL.createObjectURL(file);
+          setFiles([...files, { name: file.name, url: fileURL, type: file.type }]);
+        } else {
+          alert('Invalid file type. Please upload PDF, DOCX, Excel, PowerPoint, or images.');
+        }
+      };
+
+      return (
+        <section id="downloads" className="p-8">
+          <h2 className="text-2xl font-bold mb-4">Documents</h2>
+          <input
+            type="file"
+            onChange={handleFileUpload}
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+            className="mb-4"
+          />
+          <ul className="space-y-2">
+            {files.map((file, index) => (
+              <li key={index}>
+                <a href={file.url} download className="text-blue-600 hover:underline">
+                  {file.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    };
+
+    // News and Events Component
+    const NewsEvents = () => {
+      const [news, setNews] = useState([
+        { id: 1, title: 'Annual Planning Meeting', content: 'Held on July 20, 2025.', date: '2025-07-20' },
+        { id: 2, title: 'New Project Launch', content: 'Starting August 2025.', date: '2025-08-01' },
+      ]);
+      const [newNews, setNewNews] = useState({ title: '', content: '', date: '' });
+
+      const handleAddNews = (e) => {
+        e.preventDefault();
+        if (newNews.title && newNews.content && newNews.date) {
+          setNews([...news, { id: news.length + 1, ...newNews }]);
+          setNewNews({ title: '', content: '', date: '' });
+        }
+      };
+
+      return (
+        <section id="news" className="p-8 bg-gray-100">
+          <h2 className="text-2xl font-bold mb-4">News & Events</h2>
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold">Add News/Event</h3>
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="Title"
+                value={newNews.title}
+                onChange={(e) => setNewNews({ ...newNews, title: e.target.value })}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                placeholder="Content"
+                value={newNews.content}
+                onChange={(e) => setNewNews({ ...newNews, content: e.target.value })}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="date"
+                value={newNews.date}
+                onChange={(e) => setNewNews({ ...newNews, date: e.target.value })}
+                className="w-full p-2 border rounded"
+              />
+              <button
+                onClick={handleAddNews}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Add News
+              </button>
+            </div>
+          </div>
+          <ul className="space-y-4">
+            {news.map((item) => (
+              <li key={item.id} className="border p-4 rounded">
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p>{item.content}</p>
+                <p className="text-sm text-gray-600">{item.date}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    };
+
+    // Footer Component
+    const Footer = () => (
+      <footer className="bg-blue-800 text-white p-4 text-center">
+        <p>&copy; 2025 Planning and Development Bureau. Developed by xAI Team.</p>
+        <div className="space-x-4 mt-2">
+          <a href="#home" className="hover:text-blue-300">Home</a>
+          <a href="#contacts" className="hover:text-blue-300">Contacts</a>
+          <a href="#about-us" className="hover:text-blue-300">About Us</a>
+        </div>
+      </footer>
+    );
+
+    // Main App Component
+    const App = () => (
+      <div>
+        <Header />
+        <PhotoSlider />
+        <DocumentManager />
+        <NewsEvents />
+        <Footer />
+      </div>
+    );
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
