@@ -1,18 +1,17 @@
 <?php include 'header.php'; include 'config.php'; ?>
 <div class="container mt-4">
-    <h2>News & Events</h2>
+    <h2>Downloads</h2>
     <form method="GET"><input type="text" name="search" placeholder="Search..."><button type="submit">Search</button></form>
     <?php
     $search = isset($_GET['search']) ? $_GET['search'] : '';
-    $sql = "SELECT * FROM news WHERE title LIKE ? OR content LIKE ?";
+    $sql = "SELECT * FROM documents WHERE name LIKE ?";
     $stmt = $conn->prepare($sql);
     $like = "%$search%";
-    $stmt->bind_param("ss", $like, $like);
+    $stmt->bind_param("s", $like);
     $stmt->execute();
     $result = $stmt->get_result();
     while ($row = $result->fetch_assoc()) {
-        $type = $row['is_event'] ? 'Event' : 'News';
-        echo "<div class='card mb-3'><div class='card-body'><h5>{$row['title']} ($type)</h5><p>{$row['content']}</p><small>{$row['date']}</small></div></div>";
+        echo "<div class='card mb-3'><div class='card-body'><a href='{$row['path']}' download>{$row['name']} ({$row['type']})</a><small>Uploaded: {$row['upload_date']}</small></div></div>";
     }
     ?>
 </div>
